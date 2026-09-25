@@ -1,0 +1,19 @@
+{
+  "summary": "Verified new share-whatsapp and share-email buttons on DocumentDetail header alongside existing copy-doc-link and print-document. All 4 buttons render, visible, enabled. WhatsApp click triggers window.open with correct https://wa.me/?text=... URL containing document id. Email button clickable with no console error (mailto navigation cannot be captured due to browser location.href being non-redefinable, which is expected/acceptable). No console errors on the detail view. Regression: header layout intact, all 4 buttons on one row.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/detail_share.png"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "Superadmin: nashoharizal@gmail.com / SIKPPBJ2026",
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "DocumentDetail header now has share-whatsapp (window.open to wa.me), share-email (mailto via location.href), copy-doc-link, print-document. wa.me URL verified to contain doc id and shareText format 'PPBJ 001/PPBJ-BJM/09/2026 — Uji tombol bagikan\\nLihat dokumen: {origin}/documents/{id}'. Mailto capture in headless is not feasible because location.href is not redefinable; only click no-error was verified. Toast for copy-link may not appear in headless due to clipboard permission but was verified in iteration_11."
+}
