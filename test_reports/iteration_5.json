@@ -1,0 +1,35 @@
+{
+  "summary": "Full backend + frontend regression for SIK-PPBJ. 24/24 pytest cases pass covering superadmin+demo logins, /auth/me, RBAC (user 403, superadmin 200), Documents CRUD for PPBJ/PUM/PP/PTUM, doc number format NNN/PPBJ-BJM/MM/YYYY, approval chain (approved & rejected), generate-journal gating (400 if not approved), balanced journal for PP with PPN 11% + PPh23 (dpp=1M -> ppn=110k, pph=20k, debit=kredit=1.110.000), journals list, dashboard summary (>=6 seeded docs, total_nilai>=123.8M), budget-units returns 4 seeded units, /api/budgets?period=2026-09 returns total_pagu=435.000.000 with total_realisasi filled, budget POST/DELETE by keuangan, tax-settings defaults (PPN 11%, PPH23), accounts list ~29 + CRUD. Frontend: superadmin login redirects to /, all 10 pages (/documents/{PPBJ,PUM,PP,PTUM}, /jurnal, /anggaran, /accounts, /tax-settings, /users, /activity-log) load without any console/page errors; /anggaran renders all 4 seeded units with Rp 435.000.000 total pagu & Rp 123.800.000 realisasi.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard 'Total Nilai Pengajuan' card", "issue": "Card uses className `bg-[#0d3c45] border-0` with `text-white` value, but the dark teal background is not being applied at runtime (arbitrary-value tailwind class not compiled/safelisted). Result: white text on white card => value Rp 123.800.000 is invisible, and label uses `text-teal-200` which is very low contrast on white. Verified via screenshot.", "selector": "Dashboard.jsx line 61-63", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sikppbj_flow.py",
+    "/app/test_reports/pytest/sikppbj_flow.xml"
+  ],
+  "action_items": [
+    "Fix Dashboard 'Total Nilai Pengajuan' card: replace `bg-[#0d3c45]` with a Tailwind class that is actually compiled (e.g. `bg-teal-900` / add color to tailwind.config safelist) so the dark background and readable white value appear. Also bump label from `text-teal-200` to something readable if bg fix is not applied."
+  ],
+  "critical_code_review_comments": [
+    "server.py generate-journal correctly gates on status=='approved' (400 otherwise) and marks doc posted + journal_generated true. Balanced check ok.",
+    "compute_pph handles flat/progressive/tiered; PP with ppn_enabled + PPH23_JASA produced perfectly balanced ledger (debit=kredit=1.110.000) — good.",
+    "next_doc_number uses count+1 which is non-atomic; concurrent creations could collide on the sequence but format is correct for single-user flows.",
+    "PUT /api/budgets/{bid} still does not 404 on missing id (carried over from iteration 4).",
+    "require_roles bypasses check for superadmin — matches spec.",
+    "seed_demo idempotency uses app_meta marker; safe.",
+    "Dashboard.jsx: uses tailwind arbitrary class `bg-[#0d3c45]` which is not being applied in the deployed build (visible as bug above). Prefer palette color or add to safelist."
+  ],
+  "updated_files": ["/app/backend/tests/test_sikppbj_flow.py"],
+  "success_rate": {"backend": "100% (24/24 pytest)", "frontend": "95% (login + 10 page navigations + budget page data render, 0 console/page errors; 1 MEDIUM visual bug on Dashboard total_nilai card)"},
+  "test_credentials": "Superadmin nashoharizal@gmail.com / SIKPPBJ2026; demo admin@sbb.co.id/admin123, keuangan@sbb.co.id/keuangan123, approver@sbb.co.id/approver123, pemohon@sbb.co.id/pemohon123. All verified via /api/auth/login + /api/auth/me.",
+  "seed_data_creation": "Test file creates TEST_ prefixed PPBJ/PUM/PP/PTUM docs, one throwaway budget, one throwaway account — cleanup step at end of test class deletes docs; leftover TEST_Sipil unit_kerja may remain in distinct list (harmless).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend fully green. Server date resolves to 2026-09 (seed_demo period). PP journal math: dpp * (1 + ppn_rate/100) - pph. RBAC: user role blocked from /api/users, /api/documents/*/generate-journal. Login endpoint redirects to '/' (not '/dashboard') on success — do not wait_for_url '**/dashboard**'. Frontend visible bug: Dashboard 'Total Nilai Pengajuan' card missing background.",
+  "rca of the issue": "Dashboard 'Total Nilai Pengajuan' invisible value RCA: className `bg-[#0d3c45] border-0` uses Tailwind arbitrary hex value; JIT/CRACO build in this project does not seem to compile it (or purge removed it), so the card falls back to inherited white background. Since the value uses `text-white`, it becomes invisible. Fix: replace with a compiled palette color like `bg-slate-800` or `bg-teal-900`, or add `#0d3c45` to tailwind.config safelist / theme.extend.colors."
+}

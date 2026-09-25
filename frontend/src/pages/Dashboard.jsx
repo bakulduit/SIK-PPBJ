@@ -58,7 +58,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 text-blue-600 mb-2"><BookOpen className="w-4 h-4" /><span className="text-xs font-semibold uppercase tracking-wide">Jurnal Dibuat</span></div>
           <div className="text-2xl font-bold text-slate-900 tabular">{data.journals}</div>
         </div>
-        <div className={`${CARD} bg-[#0d3c45] border-0`}>
+        <div className={`${CARD} border-0`} style={{ backgroundColor: "#0d3c45" }}>
           <div className="flex items-center gap-2 text-teal-200 mb-2"><TrendingUp className="w-4 h-4" /><span className="text-xs font-semibold uppercase tracking-wide">Total Nilai Pengajuan</span></div>
           <div className="text-xl font-bold text-white tabular">{rupiah(data.total_nilai)}</div>
         </div>
