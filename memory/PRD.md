@@ -45,3 +45,12 @@ Membangun aplikasi sistem keuangan untuk PT. SBB berdasarkan form Excel PPBJ (Pe
 ## Next Tasks
 - Konfirmasi format kolom import Accurate Online dari user, sesuaikan export.
 - Tambah form Kas Kecil & NRP mengikuti Excel.
+
+---
+## Import & Setup + Iterasi (2026-09-25)
+- Import dari `SIK-PPBJ-3-main.zip`; stack dipertahankan (React 19 + FastAPI + MongoDB). Backend & frontend boot tanpa error, DB terhubung.
+- `.env` backend dilengkapi: JWT_SECRET, FRONTEND_URL, ADMIN_EMAIL/PASSWORD, EMERGENT_LLM_KEY (object storage), EMAIL_FROM_NAME.
+- Superadmin diganti: nashoharizal@gmail.com (default admin@example.com dihapus).
+- Data awal (seed_demo.py, idempoten): 4 unit kerja + pagu anggaran periode berjalan + 6 dokumen realisasi contoh → Dashboard & Rekap Anggaran terisi.
+- Uji E2E: backend 24/24 pytest, frontend 100% (login, 10 halaman, alur PPBJ→PUM→PP→PTUM, approval, generate jurnal PPN/PPh balanced). Fix UI kartu "Total Nilai Pengujian" (inline style) diverifikasi.
+- CATATAN: Email reset password belum dikonfigurasi (EMERGENT_EMAIL_KEY kosong) — link dicatat ke log, tidak dikirim email.
