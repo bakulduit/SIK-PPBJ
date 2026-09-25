@@ -25,7 +25,19 @@ const compact = (n) => {
 };
 
 async function downloadExcel(url, fallbackName) {
-  const res = await api.get(url, { responseType: "blob" });
+  let res;
+  try {
+    res = await api.get(url, { responseType: "blob" });
+  } catch (e) {
+    let msg = "Gagal mengunduh Excel. Coba lagi.";
+    const d = e.response?.data;
+    if (d instanceof Blob) {
+      try { const j = JSON.parse(await d.text()); msg = formatApiErrorDetail(j.detail) || msg; } catch { /* keep fallback */ }
+    } else if (d?.detail) {
+      msg = formatApiErrorDetail(d.detail) || msg;
+    }
+    throw new Error(msg);
+  }
   const cd = res.headers["content-disposition"] || "";
   const match = /filename="?([^"]+)"?/.exec(cd);
   const filename = match ? match[1] : fallbackName;
@@ -111,7 +123,7 @@ function MonthlyView({ canEdit, units, now }) {
       await downloadExcel(`/budgets/export?period=${period}`, `Rekap_Anggaran_${period}.xlsx`);
       toast.success("Excel berhasil diunduh");
     } catch (e) {
-      toast.error("Gagal mengunduh Excel. Coba lagi.");
+      toast.error(e.message || "Gagal mengunduh Excel. Coba lagi.");
     } finally {
       setExporting(false);
     }
@@ -241,6 +253,10 @@ function AnnualView({ units, now }) {
   }, [year, unit]);
 
   const exportAnnual = async () => {
+    if (!year || year < 2000 || year > 2100) {
+      toast.error("Tahun tidak valid. Masukkan tahun antara 2000 dan 2100.");
+      return;
+    }
     setExporting(true);
     try {
       const params = new URLSearchParams({ year: String(year) });
@@ -248,7 +264,7 @@ function AnnualView({ units, now }) {
       await downloadExcel(`/budgets/export-annual?${params.toString()}`, `Rekap_Anggaran_Tahunan_${year}.xlsx`);
       toast.success("Excel tahunan berhasil diunduh");
     } catch (e) {
-      toast.error("Gagal mengunduh Excel. Coba lagi.");
+      toast.error(e.message || "Gagal mengunduh Excel. Coba lagi.");
     } finally {
       setExporting(false);
     }
@@ -337,7 +353,7 @@ function RangeExportModal({ defaultEnd, onClose }) {
       toast.success("Excel rentang berhasil diunduh");
       onClose();
     } catch (e) {
-      toast.error("Gagal mengunduh. Pastikan rentang maksimal 12 bulan.");
+      toast.error(e.message || "Gagal mengunduh. Pastikan rentang maksimal 12 bulan.");
     } finally {
       setLoading(false);
     }

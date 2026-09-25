@@ -9,6 +9,7 @@ import logging
 import uuid
 import secrets
 import hashlib
+import re
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal
 
@@ -309,6 +310,21 @@ class DocIn(BaseModel):
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
+
+
+PERIOD_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+
+
+def validate_period(period: str, field: str = "Periode"):
+    if not period or not PERIOD_RE.match(period.strip()):
+        raise HTTPException(status_code=400,
+                            detail=f"{field} tidak valid. Gunakan format YYYY-MM (contoh: 2026-09).")
+
+
+def validate_year(year: int):
+    if not isinstance(year, int) or year < 2000 or year > 2100:
+        raise HTTPException(status_code=400,
+                            detail="Tahun tidak valid. Masukkan tahun antara 2000 dan 2100.")
 
 
 def approval_template(doc_type: str) -> List[dict]:
@@ -876,6 +892,7 @@ async def _budget_recap(period: str):
 
 @api_router.get("/budgets/export")
 async def export_budgets(period: str, user: dict = Depends(get_current_user)):
+    validate_period(period)
     data = await _budget_recap(period)
     content = bx.build_monthly_workbook(data, period, user.get("name", ""))
     filename = f"Rekap_Anggaran_{period}.xlsx"
@@ -930,6 +947,7 @@ async def _annual_recap(year: int, unit_kerja: Optional[str] = None):
 
 @api_router.get("/budgets/export-annual")
 async def export_budgets_annual(year: int, unit_kerja: Optional[str] = None, user: dict = Depends(get_current_user)):
+    validate_year(year)
     annual = await _annual_recap(year, unit_kerja)
     content = bx.build_annual_workbook(annual, year, unit_kerja or "", user.get("name", ""))
     filename = f"Rekap_Anggaran_Tahunan_{year}.xlsx"
@@ -942,9 +960,11 @@ async def export_budgets_annual(year: int, unit_kerja: Optional[str] = None, use
 
 @api_router.get("/budgets/export-range")
 async def export_budgets_range(start: str, end: str, user: dict = Depends(get_current_user)):
+    validate_period(start, "Periode awal")
+    validate_period(end, "Periode akhir")
     periods = bx.month_range(start, end)
     if not periods:
-        raise HTTPException(status_code=400, detail="Rentang periode tidak valid (format YYYY-MM).")
+        raise HTTPException(status_code=400, detail="Periode awal harus lebih awal atau sama dengan periode akhir, dan rentang maksimal 12 bulan.")
     months = [(p, await _budget_recap(p)) for p in periods]
     content = bx.build_range_workbook(months, user.get("name", ""))
     filename = f"Rekap_Anggaran_{periods[0]}_sd_{periods[-1]}.xlsx"

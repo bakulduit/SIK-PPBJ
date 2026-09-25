@@ -2,9 +2,10 @@ import { useState } from "react";
 import api, { rupiah } from "@/lib/api";
 import { StatusBadge, DocTypeBadge } from "@/components/Badges";
 import { useAuth } from "@/context/AuthContext";
-import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText } from "lucide-react";
+import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { printDocument } from "@/components/PrintDoc";
+import { AttachmentViewer } from "@/components/AttachmentViewer";
 import { computePph } from "@/lib/tax";
 
 const BASE = process.env.REACT_APP_BACKEND_URL;
@@ -13,6 +14,7 @@ export default function DocumentDetail({ doc, onChanged, tax }) {
   const { user } = useAuth();
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [viewerIdx, setViewerIdx] = useState(null);
   const canApprove = ["admin", "approver", "keuangan"].includes(user?.role);
   const canJournal = ["admin", "keuangan"].includes(user?.role);
 
@@ -106,15 +108,20 @@ export default function DocumentDetail({ doc, onChanged, tax }) {
               const href = a.url ? `${BASE}${a.url}` : a.link;
               const isImg = a.content_type?.startsWith("image/");
               return (
-                <a key={i} href={href || undefined} target="_blank" rel="noreferrer" data-testid={`detail-attachment-${i}`}
-                  className="flex items-center gap-2 border border-slate-200 rounded-lg p-2 bg-white hover:border-[#14758a] transition-colors max-w-[260px]">
-                  {isImg ? <img src={href} alt={a.name} className="w-16 h-16 object-cover rounded-md border border-slate-100" />
-                    : <div className="w-16 h-16 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center"><FileText className="w-6 h-6 text-slate-400" /></div>}
+                <button type="button" key={i} onClick={() => setViewerIdx(i)} data-testid={`detail-attachment-${i}`}
+                  className="group relative flex items-center gap-2 border border-slate-200 rounded-lg p-2 bg-white hover:border-[#14758a] hover:shadow-sm transition-all max-w-[260px] text-left">
+                  <div className="relative w-16 h-16 shrink-0">
+                    {isImg ? <img src={href} alt={a.name} className="w-16 h-16 object-cover rounded-md border border-slate-100" />
+                      : <div className="w-16 h-16 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center"><FileText className="w-6 h-6 text-slate-400" /></div>}
+                    <div className="absolute inset-0 rounded-md bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
+                      <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
                   <div className="min-w-0">
                     <div className="text-sm text-slate-800 truncate">{a.name || "Lampiran"}</div>
-                    <div className="text-[11px] text-[#14758a]">{a.url ? "File terunggah · buka" : a.link ? "Link eksternal" : ""}</div>
+                    <div className="text-[11px] text-[#14758a]">Klik untuk perbesar</div>
                   </div>
-                </a>
+                </button>
               );
             })}
           </div>
@@ -160,6 +167,15 @@ export default function DocumentDetail({ doc, onChanged, tax }) {
         <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
           <BookOpen className="w-4 h-4" /> Jurnal Umum sudah dibuat. Lihat di menu <b>Jurnal Umum</b>.
         </div>
+      )}
+
+      {viewerIdx !== null && doc.attachments?.length > 0 && (
+        <AttachmentViewer
+          attachments={doc.attachments}
+          index={viewerIdx}
+          onClose={() => setViewerIdx(null)}
+          onNavigate={(d) => setViewerIdx((v) => (v + d + doc.attachments.length) % doc.attachments.length)}
+        />
       )}
     </div>
   );
