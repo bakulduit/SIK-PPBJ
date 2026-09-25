@@ -1,0 +1,23 @@
+{
+  "summary": "Regression verified: AttachmentViewer is now rendered via ReactDOM.createPortal(document.body) and is truly full-viewport. Created a PPBJ document with 2 uploaded image attachments (via /api/upload + /api/documents) as superadmin, opened its detail (via /ppbj -> view-{id}), clicked detail-attachment-0, and validated every control from the request. All assertions passed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_10.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Direct URL /documents/{id} redirects to '/' — DocumentDetail is only reachable through the list route (e.g. /ppbj then view-{id}). Not a regression, but if deep-linking is a product goal, add a route for /documents/:id.",
+    "AttachmentViewer.jsx onKey depends only on [onClose, onNavigate, multiple] — parents should memoize onClose/onNavigate to avoid re-adding the keydown listener on every render (minor perf nit)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100%"},
+  "test_credentials": "Superadmin: nashoharizal@gmail.com / SIKPPBJ2026 (from review_request; /app/memory/test_credentials.md not consulted since credentials were provided)",
+  "seed_data_creation": "Created 1 PPBJ document '003/PPBJ-BJM/09/2026' kegiatan='TEST_ViewerRegression' with 2 uploaded PNG attachments (red + blue 200x200) via /api/upload + POST /api/documents. Doc id: 594c8222-9e14-45d3-a6de-b319ae3ae2c1. Status: pending_approval. Safe to leave or clean up.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Viewer regression fully verified. Test flow: login → POST /api/upload (image blob) x2 → POST /api/documents (doc_type=PPBJ, attachments=[...]) → navigate /ppbj → click [data-testid=view-{id}] → click [data-testid=detail-attachment-0]. Assertions performed: viewer bounding box = viewport (1920x1080 at 0,0), parent element = BODY (portal), all 9 control testids present + within viewport, zoom-in 100→125%, zoom-out 125→100%, rotate 0deg→90deg, image loaded from /api/files/... (complete=true, naturalWidth=200), viewer-next/prev + ArrowLeft/ArrowRight navigate with wrap-around (1/2→2/2→1/2→2/2 wraps to 1/2), Escape closes, viewer-close button closes.",
+  "rca of the issue": "Previously (iter_9) the viewer's fixed-position root was rendered inside an ancestor chain with CSS transforms (Modal + main.animate-fade-up), which causes 'fixed' to be positioned relative to the transformed ancestor per CSS spec, trapping the viewer inside the detail modal instead of the viewport. Fix in iter_10 wraps the return in ReactDOM.createPortal(<div className='fixed inset-0 z-[100]…'>, document.body), so the fixed root is now a direct child of body and escapes any transformed ancestors. Confirmed via runtime check: viewer.parentElement === document.body and getBoundingClientRect() == full viewport."
+}
