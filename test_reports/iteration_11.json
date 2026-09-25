@@ -1,0 +1,25 @@
+{
+  "summary": "Tested new deep-link route /documents/:id and 'Salin Tautan' copy-link feature. All 6 acceptance criteria PASS: (1) deep-link renders document-page + document-detail, (2) notfound state renders with back-to-dashboard button, (3) copy-doc-link copies correct shareable URL and shows toast 'Tautan dokumen disalin' (clipboard verified via navigator.clipboard.readText), (4) end-to-end create PPBJ via POST /api/documents then open /documents/{id} works, (5) auth guard redirects unauthenticated user to /login, (6) regression: list modal still opens via view-{id} and modal detail also contains the copy-doc-link button. No console errors during flow (only harmless 401s on public routes and 404 for the intentional nonexistent id test).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "DocumentDetail modal (list view)", "issues": ["Sticky header can intercept clicks on the Salin Tautan / Cetak PDF buttons at the top of the modal when the modal content scrolls past. Cosmetic only; buttons are functional when in view. Consider z-index/positioning fix or placing action bar below sticky header offset."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "DocumentPage.jsx correctly handles loading/ok/notfound states and treats any error as notfound; consider distinguishing network errors from 404 for better UX.",
+    "copyLink() gracefully falls back to window.prompt when clipboard API is unavailable — good."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "Superadmin nashoharizal@gmail.com / SIKPPBJ2026 (working)",
+  "seed_data_creation": "Created 1 PPBJ document via POST /api/documents (no 001/PPBJ-BJM/09/2026, id 27dfae11-6e7e-4341-a095-39b9c7217229) to enable deep-link tests. Not deleted; can be reused.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Deep link route /documents/:id and copy-link button verified end-to-end via superadmin login on the public preview URL. One PPBJ test document exists in DB after this run.",
+  "rca of the issue": "No issues found."
+}
