@@ -9,6 +9,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import Dashboard from "@/pages/Dashboard";
 import DocumentList from "@/pages/DocumentList";
+import DocumentPage from "@/pages/DocumentPage";
 import JurnalUmum from "@/pages/JurnalUmum";
 import AnggaranBulanan from "@/pages/AnggaranBulanan";
 import TaxSettings from "@/pages/TaxSettings";
@@ -42,6 +43,7 @@ function App() {
             <Route path="/ptum" element={<Protected><DocumentList docType="PTUM" /></Protected>} />
             <Route path="/kaskecil" element={<Protected><DocumentList docType="KASKECIL" /></Protected>} />
             <Route path="/nrp" element={<Protected><DocumentList docType="NRP" /></Protected>} />
+            <Route path="/documents/:id" element={<Protected><DocumentPage /></Protected>} />
             <Route path="/jurnal" element={<Protected><JurnalUmum /></Protected>} />
             <Route path="/anggaran" element={<Protected><AnggaranBulanan /></Protected>} />
             <Route path="/pajak" element={<Protected><TaxSettings /></Protected>} />

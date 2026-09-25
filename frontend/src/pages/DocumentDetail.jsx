@@ -2,7 +2,7 @@ import { useState } from "react";
 import api, { rupiah } from "@/lib/api";
 import { StatusBadge, DocTypeBadge } from "@/components/Badges";
 import { useAuth } from "@/context/AuthContext";
-import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText, ZoomIn } from "lucide-react";
+import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText, ZoomIn, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { printDocument } from "@/components/PrintDoc";
 import { AttachmentViewer } from "@/components/AttachmentViewer";
@@ -41,14 +41,28 @@ export default function DocumentDetail({ doc, onChanged, tax }) {
 
   const nextPending = (doc.approvals || []).findIndex((a) => a.status === "pending");
 
+  const copyLink = async () => {
+    const url = `${window.location.origin}/documents/${doc.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Tautan dokumen disalin");
+    } catch {
+      window.prompt("Salin tautan dokumen:", url);
+    }
+  };
+
   return (
     <div className="space-y-5" data-testid="document-detail">
       <div className="flex flex-wrap items-center gap-3">
         <DocTypeBadge type={doc.doc_type} />
         <span className="font-mono text-sm text-slate-600">{doc.no}</span>
         <StatusBadge status={doc.status} />
-        <button data-testid="print-document" onClick={() => printDocument(doc)}
+        <button data-testid="copy-doc-link" onClick={copyLink}
           className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+          <Link2 className="w-4 h-4" /> Salin Tautan
+        </button>
+        <button data-testid="print-document" onClick={() => printDocument(doc)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
           <Printer className="w-4 h-4" /> Cetak PDF
         </button>
       </div>
