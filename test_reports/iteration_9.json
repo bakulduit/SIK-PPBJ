@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 9: verified new Pratinjau Lampiran (AttachmentViewer) and Validasi Periode Ekspor. Backend: 10/10 new export-validation pytest cases PASSED — /api/budgets/export rejects 2026-13, 'bad', 2026-9 with 400 + exact Indonesian detail 'Periode tidak valid. Gunakan format YYYY-MM (contoh: 2026-09).'; /api/budgets/export-annual rejects year=1800 and 3000 with 400 + 'Tahun tidak valid. Masukkan tahun antara 2000 dan 2100.'; /api/budgets/export-range rejects start='bad' and start>end with 400 + correct Indonesian messages; valid params return 200 xlsx with expected sheets. Frontend UX: /anggaran Annual tab shows the toast 'Tahun tidak valid…' when year=1800 is exported (client-side guard OK). Frontend AttachmentViewer: buttons/testids all wired correctly (viewer-zoom-in/out/level, viewer-rotate, viewer-download, viewer-close, viewer-prev/next, keyboard Esc/Arrow support in code). BUT one CRITICAL UI bug found — see below.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AttachmentViewer (rendered from DocumentDetail inside Modal)",
+        "issue": "Viewer is NOT truly full-screen. Its `position: fixed inset-0` is contained by an ancestor whose CSS `transform` is non-none. Two ancestors have transforms: (1) Modal.jsx inner box uses `animate-fade-up` (index.css keyframe animates `translateY`, with `animation-fill-mode: both` so a residual transform matrix stays) and (2) `<main>` also uses `animate-fade-up`. Per CSS spec, any ancestor with `transform !== none` creates a containing block for `position: fixed` descendants → viewer is trapped to the parent modal (~896x777) instead of the viewport (1920x1080). Visible symptom: dark backdrop covers only the Detail modal area (left sidebar/header still visible), image is clipped, and Playwright reports zoom-in button 'outside of viewport' because the flex-1 content region overflows the constrained fixed container.",
+        "selector": "[data-testid=\"attachment-viewer\"]",
+        "priority": "HIGH",
+        "evidence": "transformAncestors=[{cls:'relative bg-white rounded-xl … max-h-[90vh] flex flex-…', transform:'matrix(1,0,0,1,0,7.46)'}, {tag:'MAIN', cls:'… animate-fade-up', transform:'matrix(1,0,0,1,0,0)'}]; viewer bbox 896x777 vs viewport 1920x1080.",
+        "suggested_fix": "Portal the AttachmentViewer to document.body via ReactDOM.createPortal (recommended), OR change `.animate-fade-up` to use opacity-only animation (no transform), OR wrap the viewer in a portal only when opened. Portal is safest and standard for lightbox/fullscreen overlays."
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/anggaran Annual tab", "issues": ["Recharts logs repeated warnings 'The width(-1) and height(-1) of chart should be greater than 0' — chart container has no explicit width/height while loading. Minor console noise, not functional."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_export_validation.py",
+    "/app/test_reports/pytest/iter9_export_validation.xml"
+  ],
+  "action_items": [
+    "FIX: Portal <AttachmentViewer> to document.body so `fixed inset-0` covers the full viewport regardless of ancestor transforms. Currently viewer opens INSIDE the Detail modal and is not fullscreen — user can't properly inspect nota/bukti.",
+    "OPTIONAL: replace `.animate-fade-up` transform-based animation with opacity-only, or add `transform-none` on the modal inner box after animation ends.",
+    "OPTIONAL: suppress Recharts width/height warnings on Annual tab by giving the ResponsiveContainer explicit min height."
+  ],
+  "critical_code_review_comments": [
+    "AttachmentViewer.jsx correctly uses testids, keyboard handlers, wrap-around navigation, zoom clamping [0.5,5], and safe href fallback. Only integration flaw is placement inside a transformed ancestor — needs a portal.",
+    "AnggaranBulanan.jsx exportAnnual has correct client-side year guard (2000..2100) plus server backup — good defense-in-depth.",
+    "DocumentDetail.jsx correctly wires viewerIdx with wrap-around modulo — logic is sound; only rendering location is the issue."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_export_validation.py (new)"
+  ],
+  "success_rate": {"backend": "100% (10/10 new + prior 10/10 still green)", "frontend": "80% — AttachmentViewer functional testids and export-UX toast verified; fullscreen containment bug remains"},
+  "test_credentials": "superadmin nashoharizal@gmail.com / SIKPPBJ2026 login OK; httponly cookie auto-sent to /api/upload, /api/documents, /api/files/*.",
+  "seed_data_creation": "Test PPBJ docs (unit_kerja='TEST_VIEWER') with 1 and 2 PNG attachments were created and deleted during Playwright runs.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "After E1 portals the AttachmentViewer, re-run the Playwright flow: login → POST doc with attachment → /ppbj → click view-{id} → click detail-attachment-0 → assert viewer bounding box == viewport size (1920x1080). Also verify zoom-in click no longer reports 'outside of viewport' and keyboard Escape/Arrows work when the modal is above. Backend export validation is fully covered by /app/backend/tests/test_export_validation.py.",
+  "rca of the issue": "AttachmentViewer's `position: fixed inset-0 z-[100]` is intended to cover the viewport. However, when rendered as a child of DocumentDetail (which itself lives inside <Modal> and inside <main class='animate-fade-up'>), CSS containing-block rules make `position: fixed` resolve against the nearest ancestor with a non-none `transform`. Both the Modal inner box and <main> apply `animate-fade-up` (keyframe animates `translateY` with fill-mode both), leaving a residual `transform: matrix(1,0,0,1,0,X)`. Result: viewer is confined to the modal box (896x777) instead of the viewport (1920x1080). Standard fix is a React portal to document.body so the overlay escapes any transformed ancestor."
+}

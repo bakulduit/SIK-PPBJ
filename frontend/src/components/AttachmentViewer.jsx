@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, ZoomIn, ZoomOut, RotateCw, Download, ChevronLeft, ChevronRight, FileText, ExternalLink } from "lucide-react";
 
 const BASE = process.env.REACT_APP_BACKEND_URL;
@@ -41,7 +42,7 @@ export function AttachmentViewer({ attachments, index, onClose, onNavigate }) {
 
   if (!a) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm animate-in fade-in duration-150"
       data-testid="attachment-viewer" onClick={onClose}>
       <div className="flex items-center gap-3 px-4 py-3 text-white" onClick={(e) => e.stopPropagation()}>
@@ -102,7 +103,8 @@ export function AttachmentViewer({ attachments, index, onClose, onNavigate }) {
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
