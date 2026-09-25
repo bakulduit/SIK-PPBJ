@@ -2,7 +2,7 @@ import { useState } from "react";
 import api, { rupiah } from "@/lib/api";
 import { StatusBadge, DocTypeBadge } from "@/components/Badges";
 import { useAuth } from "@/context/AuthContext";
-import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText, ZoomIn, Link2 } from "lucide-react";
+import { CheckCircle2, XCircle, BookOpen, Circle, Printer, Paperclip, FileText, ZoomIn, Link2, MessageCircle, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { printDocument } from "@/components/PrintDoc";
 import { AttachmentViewer } from "@/components/AttachmentViewer";
@@ -51,20 +51,42 @@ export default function DocumentDetail({ doc, onChanged, tax }) {
     }
   };
 
+  const shareUrl = `${window.location.origin}/documents/${doc.id}`;
+  const shareTitle = `${doc.doc_type} ${doc.no}`;
+  const shareText = `${shareTitle}${doc.kegiatan ? ` — ${doc.kegiatan}` : ""}\nLihat dokumen: ${shareUrl}`;
+
+  const shareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank", "noopener,noreferrer");
+  };
+
+  const shareEmail = () => {
+    window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(shareText)}`;
+  };
+
   return (
     <div className="space-y-5" data-testid="document-detail">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <DocTypeBadge type={doc.doc_type} />
-        <span className="font-mono text-sm text-slate-600">{doc.no}</span>
+        <span className="font-mono text-sm text-slate-600 mr-1">{doc.no}</span>
         <StatusBadge status={doc.status} />
-        <button data-testid="copy-doc-link" onClick={copyLink}
-          className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          <Link2 className="w-4 h-4" /> Salin Tautan
-        </button>
-        <button data-testid="print-document" onClick={() => printDocument(doc)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          <Printer className="w-4 h-4" /> Cetak PDF
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button data-testid="share-whatsapp" onClick={shareWhatsApp} title="Bagikan via WhatsApp" aria-label="Bagikan via WhatsApp"
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-[#25D366] hover:bg-green-50 hover:border-[#25D366] transition-colors">
+            <MessageCircle className="w-4 h-4" />
+          </button>
+          <button data-testid="share-email" onClick={shareEmail} title="Bagikan via Email" aria-label="Bagikan via Email"
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-50 hover:border-[#14758a] hover:text-[#14758a] transition-colors">
+            <Mail className="w-4 h-4" />
+          </button>
+          <button data-testid="copy-doc-link" onClick={copyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+            <Link2 className="w-4 h-4" /> Salin Tautan
+          </button>
+          <button data-testid="print-document" onClick={() => printDocument(doc)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+            <Printer className="w-4 h-4" /> Cetak PDF
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
