@@ -370,7 +370,7 @@ def month_range(start, end, limit=12):
     if not (1 <= ms <= 12 and 1 <= me <= 12):
         return []
     if (ys, ms) > (ye, me):
-        ys, ms, ye, me = ye, me, ys, ms
+        return []
     out = []
     cy, cm = ys, ms
     while (cy, cm) <= (ye, me) and len(out) < limit:

@@ -1,0 +1,36 @@
+{
+  "summary": "Tested Excel export (monthly/annual/range) and Upload Nota (backend + frontend) per review. Backend pytest 9/10 passed. UI: all three download buttons in /anggaran trigger valid .xlsx downloads (monthly 136KB, range 528KB w/ 3 monthly sheets + Ringkasan, annual 136KB w/ 'Tahunan 2026' sheet). Upload flow in PPBJ DocumentForm works end-to-end: file input accepts PNG, attachment-row-0 renders with image preview + 'Terunggah' badge, del-attachment-0 removes it, document saved with attachments array containing storage_path prefixed 'sbb-keuangan/uploads/{user_id}/'. One backend spec violation found: GET /api/budgets/export-range with start>end returns 200 (should return 400 per spec) because backend/budget_excel.py::month_range silently swaps start/end.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/budgets/export-range", "issue": "start > end returns HTTP 200 (silently swaps). Spec requires HTTP 400 for invalid range. Fix in /app/backend/budget_excel.py::month_range: return [] (or raise) when (ys,ms)>(ye,me) instead of swapping. Alternatively validate in server.py before calling month_range."},
+      {"endpoint": "GET /api/budgets/export", "issue": "Invalid period like 'bad' returns HTTP 200 with empty sheet (no format validation). Not required by spec but recommended to reject with 400."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_export_and_upload.py",
+    "/app/test_reports/pytest/export_upload_results.xml"
+  ],
+  "action_items": [
+    "Fix month_range() in /app/backend/budget_excel.py to NOT swap start/end; return [] so /api/budgets/export-range returns 400 when start>end (matches review-spec)."
+  ],
+  "critical_code_review_comments": [
+    "month_range silently swapping start/end masks user error and violates the documented 400 behaviour.",
+    "Neither /budgets/export nor /budgets/export-annual validate period/year format (both accept garbage and return an empty workbook / 500-risk). Cheap Pydantic-regex validation would be nice."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_export_and_upload.py (new)"
+  ],
+  "success_rate": {"backend": "90% (9/10)", "frontend": "100%"},
+  "test_credentials": "superadmin nashoharizal@gmail.com / SIKPPBJ2026 - login OK",
+  "seed_data_creation": "Created and cleaned up TEST_KEGIATAN_UI PPBJ doc with a PNG attachment (uploaded to object storage sbb-keuangan/uploads/{user_id}/) - verified persistence and deleted after check.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Feature works end-to-end. Only remaining item: main agent should update month_range() (budget_excel.py line 372-373) to return [] on inverted range instead of swapping, so export-range endpoint returns HTTP 400 as specified. Re-run test_export_and_upload.py::test_export_range_start_after_end_400 to confirm. Verified attachments successfully saved to object storage with EMERGENT_LLM_KEY-backed backend and content-type properly set on GET /api/files/{path}.",
+  "rca of the issue": "backend/budget_excel.py::month_range (line 372-373) contains `if (ys,ms) > (ye,me): ys,ms,ye,me = ye,me,ys,ms` which silently normalises reversed ranges. As a result, /api/budgets/export-range still returns a valid workbook when caller passes start>end, contradicting the 400 requirement in review. Fix: remove the swap and instead `return []` so the endpoint raises HTTPException(400)."
+}
