@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import api from "@/lib/api";
 import { RefreshCw, History } from "lucide-react";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const ACTIONS = {
   "user.create": { l: "Membuat Akun", cls: "bg-green-50 text-green-700" },
@@ -51,9 +52,12 @@ export default function ActivityLog() {
           </h1>
           <p className="text-slate-500 text-sm mt-1">Jejak audit siapa membuat, mengubah, menghapus, menonaktifkan & mereset akun pengguna.</p>
         </div>
-        <button data-testid="refresh-logs" onClick={load} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold">
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Muat Ulang
-        </button>
+        <div className="flex items-center gap-2">
+          <ModuleHelp id="log" />
+          <button data-testid="refresh-logs" onClick={load} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold">
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Muat Ulang
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="log-filter">

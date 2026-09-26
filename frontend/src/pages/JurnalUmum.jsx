@@ -4,6 +4,7 @@ import Modal from "@/components/Modal";
 import { DocTypeBadge } from "@/components/Badges";
 import { Download, FileSpreadsheet, Eye, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
 
 export default function JurnalUmum() {
   const [journals, setJournals] = useState([]);
@@ -93,6 +94,7 @@ export default function JurnalUmum() {
           <p className="text-slate-500 text-sm mt-1">Output penjurnalan siap input ke Accurate Online, lengkap rincian pajak.</p>
         </div>
         <div className="flex gap-2">
+          <ModuleHelp id="jurnal" />
           <button data-testid="export-csv" onClick={exportCSV} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50">
             <Download className="w-4 h-4" /> CSV
           </button>

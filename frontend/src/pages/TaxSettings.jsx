@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Save, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const INP = "w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#14758a]";
 
@@ -42,9 +43,12 @@ export default function TaxSettings() {
           <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">Pengaturan Pajak</h1>
           <p className="text-slate-500 text-sm mt-1">Tarif mengikuti ketentuan perpajakan Indonesia. Sesuaikan bila ada perubahan regulasi.</p>
         </div>
-        <button data-testid="save-tax" onClick={save} disabled={saving} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold disabled:opacity-60">
-          <Save className="w-4 h-4" /> {saving ? "Menyimpan…" : "Simpan"}
-        </button>
+        <div className="flex items-center gap-2">
+          <ModuleHelp id="pajak" />
+          <button data-testid="save-tax" onClick={save} disabled={saving} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold disabled:opacity-60">
+            <Save className="w-4 h-4" /> {saving ? "Menyimpan…" : "Simpan"}
+          </button>
+        </div>
       </div>
 
       <div className="bg-[#eef8f9] border border-[#b3e2e8] rounded-lg p-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">

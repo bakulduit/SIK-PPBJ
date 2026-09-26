@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api, { rupiah } from "@/lib/api";
 import { StatusBadge, DocTypeBadge } from "@/components/Badges";
 import { FileText, Wallet, Receipt, ClipboardCheck, BookOpen, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const CARD = "bg-white border border-slate-200 rounded-lg shadow-sm p-5";
 
@@ -23,9 +24,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6" data-testid="dashboard">
-      <div>
-        <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Ringkasan pengajuan & status penjurnalan PT. Sumber Berdaya Bersama.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-1">Ringkasan pengajuan & status penjurnalan PT. Sumber Berdaya Bersama.</p>
+        </div>
+        <ModuleHelp id="dashboard" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

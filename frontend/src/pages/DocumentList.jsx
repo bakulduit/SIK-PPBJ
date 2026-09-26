@@ -5,6 +5,7 @@ import DocumentForm from "@/pages/DocumentForm";
 import DocumentDetail from "@/pages/DocumentDetail";
 import { StatusBadge } from "@/components/Badges";
 import { Plus, Search, Eye, Pencil } from "lucide-react";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const TITLES = {
   PPBJ: { h: "Permintaan Pengadaan Barang & Jasa", s: "Pengajuan kebutuhan barang/jasa dengan verifikasi anggaran." },
@@ -54,10 +55,13 @@ export default function DocumentList({ docType }) {
           <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">{docType} · {meta.h}</h1>
           <p className="text-slate-500 text-sm mt-1">{meta.s}</p>
         </div>
-        <button data-testid="create-document" onClick={() => { setEditing(null); setShowForm(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold">
-          <Plus className="w-4 h-4" /> Buat {docType}
-        </button>
+        <div className="flex items-center gap-2">
+          <ModuleHelp id={docType.toLowerCase()} />
+          <button data-testid="create-document" onClick={() => { setEditing(null); setShowForm(true); }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold">
+            <Plus className="w-4 h-4" /> Buat {docType}
+          </button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">

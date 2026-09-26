@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import Modal from "@/components/Modal";
 import { Plus, Pencil, Trash2, ShieldCheck, KeyRound, Power, PowerOff } from "lucide-react";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const INP = "w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#14758a]";
 const L = "block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5";
@@ -99,7 +100,10 @@ export default function UsersPage() {
           <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">Pengguna & Peran</h1>
           <p className="text-slate-500 text-sm mt-1">Kelola akun sesuai matriks otorisasi perusahaan.</p>
         </div>
-        <button data-testid="add-user" onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold"><Plus className="w-4 h-4" /> Tambah Pengguna</button>
+        <div className="flex items-center gap-2">
+          <ModuleHelp id="pengguna" />
+          <button data-testid="add-user" onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold"><Plus className="w-4 h-4" /> Tambah Pengguna</button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="role-filter">

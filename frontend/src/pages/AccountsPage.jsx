@@ -3,6 +3,7 @@ import api from "@/lib/api";
 import Modal from "@/components/Modal";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
 
 const INP = "w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#14758a]";
 const L = "block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5";
@@ -44,7 +45,10 @@ export default function AccountsPage() {
           <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-900">Master Akun (COA)</h1>
           <p className="text-slate-500 text-sm mt-1">Chart of Accounts standar — sesuaikan dengan kode akun Accurate Online Anda.</p>
         </div>
-        <button data-testid="add-account" onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold"><Plus className="w-4 h-4" /> Tambah Akun</button>
+        <div className="flex items-center gap-2">
+          <ModuleHelp id="akun" />
+          <button data-testid="add-account" onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#14758a] hover:bg-[#106071] text-white text-sm font-semibold"><Plus className="w-4 h-4" /> Tambah Akun</button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
